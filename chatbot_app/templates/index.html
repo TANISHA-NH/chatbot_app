@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 400px;
+      padding: 20px;
+    }
+
+    #chat-box {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 75%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    p {
+      margin: 5px 0;
+    }
+
+    strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const userInput = document.getElementById("user-input").value.trim();
+      const chatBox = document.getElementById("chat-box");
+
+      if (userInput === "") return;
+
+      chatBox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userInput })
+      });
+
+      const data = await response.json();
+
+      if (data.response) {
+        chatBox.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+      } else {
+        chatBox.innerHTML += `<p><strong>Bot:</strong> Oops! Something went wrong.</p>`;
+      }
+
+      document.getElementById("user-input").value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Press Enter to send
+    document.getElementById("user-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
